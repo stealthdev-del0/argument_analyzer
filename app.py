@@ -7,6 +7,9 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 import sys
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -26,24 +29,75 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Custom CSS - Light theme with proper contrast
 st.markdown("""
 <style>
-    .main {
-        padding: 0rem 1rem;
+    /* Light background, dark text */
+    body {
+        background-color: #ffffff !important;
+        color: #262730 !important;
     }
+    
+    /* Text visibility */
+    p, span, li, label {
+        color: #262730 !important;
+    }
+    
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+        color: #1f77b4 !important;
+    }
+    
+    /* Metric boxes */
     .stMetric {
-        background-color: #f0f2f6;
+        background-color: #f8f9fa;
         padding: 1rem;
         border-radius: 0.5rem;
         margin: 0.5rem 0;
+        border: 1px solid #e0e0e0;
     }
-    .argument-card {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-left: 4px solid #1f77b4;
-        margin: 0.5rem 0;
-        border-radius: 0.3rem;
+    
+    .stMetric label {
+        color: #1f1f1f !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Input fields */
+    input, textarea, select {
+        background-color: #ffffff !important;
+        color: #262730 !important;
+        border: 1px solid #d0d0d0 !important;
+    }
+    
+    /* Buttons */
+    .stButton button {
+        background-color: #1f77b4 !important;
+        color: white !important;
+    }
+    
+    .stButton button:hover {
+        background-color: #1557a0 !important;
+    }
+    
+    /* Info boxes */
+    .stInfo {
+        background-color: #e3f2fd !important;
+        color: #1565c0 !important;
+    }
+    
+    .stWarning {
+        background-color: #fff3e0 !important;
+        color: #e65100 !important;
+    }
+    
+    .stSuccess {
+        background-color: #e8f5e9 !important;
+        color: #2e7d32 !important;
+    }
+    
+    .stError {
+        background-color: #ffebee !important;
+        color: #c62828 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -185,8 +239,8 @@ if st.session_state.analysis_results:
     st.divider()
     
     # Tabs for different views
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
-        ["📋 Arguments", "🌳 Structure", "😊 Emotions", "🔴 Weaknesses", "📈 Details"]
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+        ["📋 Arguments", "🌳 Structure", "😊 Emotions", "🔴 Weaknesses", "📈 Details", "📊 Visualizations"]
     )
     
     # Tab 1: Arguments
@@ -268,14 +322,35 @@ if st.session_state.analysis_results:
         
         st.divider()
         
-        # Sentiment chart
+        # Sentiment chart with Plotly
         sentiment_data = {
-            "Positive": emotion_summary['positive'],
-            "Neutral": emotion_summary['neutral'],
-            "Negative": emotion_summary['negative']
+            "Sentiment": ["Positive", "Neutral", "Negative"],
+            "Count": [
+                emotion_summary['positive'],
+                emotion_summary['neutral'],
+                emotion_summary['negative']
+            ]
         }
         
-        st.bar_chart(sentiment_data)
+        fig_sentiment = px.bar(
+            sentiment_data,
+            x='Sentiment',
+            y='Count',
+            color='Sentiment',
+            color_discrete_map={
+                'Positive': '#00cc96',
+                'Neutral': '#636EFA',
+                'Negative': '#ef553b'
+            }
+        )
+        fig_sentiment.update_layout(
+            height=350,
+            showlegend=False,
+            xaxis_title="",
+            yaxis_title="Count",
+            margin=dict(l=0, r=0, t=0, b=0)
+        )
+        st.plotly_chart(fig_sentiment, use_container_width=True)
         
         st.divider()
         st.metric("Avg Sentiment Score", f"{emotion_summary['avg_sentiment']:+.2f}")
@@ -350,6 +425,183 @@ if st.session_state.analysis_results:
         
         import json
         st.json(export_data)
+    
+    # Tab 6: Visualizations
+    with tab6:
+        st.subheader("📊 Comprehensive Visualizations")
+        
+        # Prepare data for visualizations
+        df_analysis = pd.DataFrame([
+            {
+                "Type": cls.argument_type,
+                "Confidence": cls.confidence,
+                "Strength": cls.strength,
+                "Sentiment": cls.sentiment,
+                "Emotionality": cls.emotionality,
+                "Text": cls.sentence_text[:30] + "..."
+            }
+            for cls in results['classifications']
+        ])
+        
+        # Row 1: Pie chart and Type distribution
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🎯 Argument Type Distribution")
+            type_counts = df_analysis['Type'].value_counts()
+            fig_pie = go.Figure(data=[go.Pie(
+                labels=type_counts.index,
+                values=type_counts.values,
+                marker=dict(
+                    colors=['#00cc96', '#636EFA', '#ab63fa', '#cccccc'][:len(type_counts)]
+                ),
+                hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
+            )])
+            fig_pie.update_layout(
+                height=350,
+                showlegend=True,
+                margin=dict(l=0, r=0, t=0, b=0)
+            )
+            st.plotly_chart(fig_pie, use_container_width=True)
+        
+        with col2:
+            st.markdown("#### 💪 Strength by Argument Type")
+            fig_strength = px.box(
+                df_analysis,
+                x='Type',
+                y='Strength',
+                color='Type',
+                color_discrete_map={
+                    'CLAIM': '#00cc96',
+                    'SUPPORT': '#636EFA',
+                    'COUNTER': '#ab63fa',
+                    'NEUTRAL': '#cccccc'
+                },
+                points='all'
+            )
+            fig_strength.update_layout(
+                height=350,
+                showlegend=False,
+                xaxis_title="",
+                yaxis_title="Strength Score",
+                margin=dict(l=0, r=0, t=0, b=0)
+            )
+            st.plotly_chart(fig_strength, use_container_width=True)
+        
+        st.divider()
+        
+        # Row 2: Confidence vs Strength scatter plot
+        st.markdown("#### 📍 Confidence vs Strength Analysis")
+        fig_scatter = px.scatter(
+            df_analysis,
+            x='Confidence',
+            y='Strength',
+            color='Type',
+            size='Emotionality',
+            hover_data=['Text', 'Sentiment'],
+            color_discrete_map={
+                'CLAIM': '#00cc96',
+                'SUPPORT': '#636EFA',
+                'COUNTER': '#ab63fa',
+                'NEUTRAL': '#cccccc'
+            }
+        )
+        fig_scatter.update_layout(
+            height=400,
+            xaxis_title="Confidence Score",
+            yaxis_title="Argument Strength",
+            hovermode='closest',
+            margin=dict(l=0, r=0, t=0, b=0)
+        )
+        st.plotly_chart(fig_scatter, use_container_width=True)
+        
+        st.divider()
+        
+        # Row 3: Emotions and Sentiment metrics
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 😊 Sentiment Distribution")
+            sentiment_counts = df_analysis['Sentiment'].value_counts()
+            fig_sentiment = px.bar(
+                x=sentiment_counts.index,
+                y=sentiment_counts.values,
+                labels={'x': 'Sentiment', 'y': 'Count'},
+                color=sentiment_counts.index,
+                color_discrete_map={
+                    'POSITIVE': '#00cc96',
+                    'NEUTRAL': '#636EFA',
+                    'NEGATIVE': '#ef553b'
+                }
+            )
+            fig_sentiment.update_layout(
+                height=350,
+                showlegend=False,
+                xaxis_title="",
+                yaxis_title="Count",
+                margin=dict(l=0, r=0, t=0, b=0)
+            )
+            st.plotly_chart(fig_sentiment, use_container_width=True)
+        
+        with col2:
+            st.markdown("#### 🔥 Emotionality Distribution")
+            fig_emotion_hist = px.histogram(
+                df_analysis,
+                x='Emotionality',
+                nbins=15,
+                color_discrete_sequence=['#ab63fa']
+            )
+            fig_emotion_hist.update_layout(
+                height=350,
+                showlegend=False,
+                xaxis_title="Emotionality Score",
+                yaxis_title="Frequency",
+                margin=dict(l=0, r=0, t=0, b=0)
+            )
+            st.plotly_chart(fig_emotion_hist, use_container_width=True)
+        
+        st.divider()
+        
+        # Row 4: Radar chart
+        st.markdown("#### 🎯 Overall Metrics Radar")
+        
+        # Compute averages by type
+        radar_data = df_analysis.groupby('Type')[['Confidence', 'Strength', 'Emotionality']].mean()
+        
+        fig_radar = go.Figure()
+        
+        for arg_type in radar_data.index:
+            fig_radar.add_trace(go.Scatterpolar(
+                r=[
+                    radar_data.loc[arg_type, 'Confidence'],
+                    radar_data.loc[arg_type, 'Strength'],
+                    radar_data.loc[arg_type, 'Emotionality']
+                ],
+                theta=['Confidence', 'Strength', 'Emotionality'],
+                fill='toself',
+                name=arg_type
+            ))
+        
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+            height=450,
+            showlegend=True,
+            margin=dict(l=0, r=0, t=0, b=0)
+        )
+        st.plotly_chart(fig_radar, use_container_width=True)
+        
+        st.divider()
+        
+        # Row 5: Summary statistics table
+        st.markdown("#### 📊 Summary Statistics by Type")
+        
+        summary_stats = df_analysis.groupby('Type').agg({
+            'Confidence': ['mean', 'min', 'max', 'std'],
+            'Strength': ['mean', 'min', 'max', 'std'],
+            'Emotionality': ['mean', 'min', 'max', 'std']
+        }).round(3)
+        
+        st.dataframe(summary_stats, use_container_width=True)
 
 # Footer
 st.divider()
