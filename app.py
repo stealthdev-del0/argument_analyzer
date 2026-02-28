@@ -99,6 +99,35 @@ st.markdown("""
         background-color: #ffebee !important;
         color: #c62828 !important;
     }
+
+    /* Responsive adjustments for mobile devices */
+    @media only screen and (max-width: 768px) {
+        /* stack columns vertically */
+        [data-testid="stColumns"] {
+            flex-direction: column !important;
+        }
+
+        /* make metrics full width */
+        .stMetric {
+            width: 100% !important;
+        }
+
+        /* adjust text area width and height */
+        textarea {
+            min-height: 150px !important;
+        }
+
+        /* reduce side padding of main container */
+        .block-container {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        /* increase button padding for easier touch */
+        .stButton button {
+            padding: 0.75rem 1.25rem !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
