@@ -163,8 +163,10 @@ argument_analyzer/
 - Sentiment-Score
 
 **Weaknesses Tab:**
-- Logische Fallacies erkannt
-- Detaillierte Erklärungen
+- Logische Fallacies erkannt und benannt (z.B. Ad Hominem, Appeal to Emotion)
+- Beschreibung jeder Schwäche
+- Vorschläge, wie das Argument gestärkt werden kann
+- Mögliche Gegenargumente und zusätzliche Pro-Argumente
 - Fehlende Belege
 
 **Details Tab:**

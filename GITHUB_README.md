@@ -14,7 +14,7 @@
 - **🔵 Support Arguments** - Find supporting evidence  
 - **🟣 Counter Arguments** - Discover opposing views
 - **😊 Sentiment Analysis** - Detect emotional language
-- **🔴 Logical Fallacies** - Warn about common errors (Ad Hominem, overgeneralization, etc.)
+- **🔴 Logical Fallacies** - Identify and name errors (Ad Hominem, Appeal to Emotion, etc.) with explanations
 - **🌳 Structure Visualization** - Interactive argument tree
 - **💻 Web Interface** - Beautiful Streamlit UI
 - **🐳 Docker Ready** - One-click deployment
@@ -76,7 +76,7 @@ docker run -p 8501:8501 yourusername/argument-analyzer
 - **Arguments Tab** - Detailed classification with confidence scores
 - **Structure Tab** - ASCII tree visualization + statistics
 - **Emotions Tab** - Sentiment chart + emotionality metrics
-- **Weaknesses Tab** - Detected logical fallacies
+- **Weaknesses Tab** - Detected logical fallacies with suggestions to strengthen, plus pro/contra points
 - **Details Tab** - Export as JSON
 
 ## 🏗️ Architecture
