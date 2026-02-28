@@ -18,6 +18,7 @@
 - **🌳 Structure Visualization** - Interactive argument tree
 - **💻 Web Interface** - Beautiful Streamlit UI
 - **🐳 Docker Ready** - One-click deployment
+- **📱 Mobile Friendly** - responsive layout for phones and tablets
 - **☁️ Cloud Deploy** - Heroku, Railway, AWS, Google Cloud
 - **🧪 11 Unit Tests** - Fully tested MVP
 
