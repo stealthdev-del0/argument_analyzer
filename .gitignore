@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# spaCy models
+en_core_web_sm/
+de_core_news_sm/
+en_core_web_md/
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Data files
+*.csv
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Streamlit cache
+.streamlit/secrets.toml
+.streamlit/secrets.local.toml
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Node modules (if using Streamlit components)
+node_modules/
+
+# Docker
+.docker/
+
+# Database
+*.db
+*.sqlite3
+
