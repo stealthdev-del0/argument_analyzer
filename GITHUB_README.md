@@ -192,7 +192,7 @@ STREAMLIT_SERVER_HEADLESS=true
 - [ ] Word embeddings (Word2Vec)
 - [ ] Graph visualization (networkx → Plotly)
 - [ ] Fine-tuned BERT
-- [ ] Multi-language support
+- [x] Multi-language support (English/Deutsch via sidebar selector)
 - [ ] Argument relation classification
 
 ## 💡 Use Cases

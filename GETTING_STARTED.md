@@ -143,6 +143,8 @@ argument_analyzer/
   - Gun Control
   - Social Media
 
+> **Sprache einstellen:** Oben in der Seitenleiste kann zwischen **English** und **Deutsch** gewechselt werden – die gesamte Oberfläche passt sich automatisch an.
+
 ### 📊 Analysis Display
 
 **Arguments Tab:**

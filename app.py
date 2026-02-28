@@ -21,7 +21,14 @@ from argument_classification import ArgumentClassifier
 from structure_builder import StructureBuilder
 from test_cases import list_test_cases, get_test_case
 
-# Page config
+# translation support
+from translations import LANGUAGE_NAMES, t
+
+# ensure language stored in session state
+if 'lang' not in st.session_state:
+    st.session_state.lang = 'en'  # default to English
+
+# Page config -- title can remain static or could be localized if desired
 st.set_page_config(
     page_title="🧠 Argument Structure Analyzer",
     page_icon="🧠",
@@ -139,36 +146,40 @@ if 'analysis_results' not in st.session_state:
 
 # Sidebar
 with st.sidebar:
-    st.header("⚙️ Configuration")
+    # language selector at the top
+    lang_option = st.selectbox(
+        "Language / Sprache:",
+        list(LANGUAGE_NAMES.values()),
+        index=list(LANGUAGE_NAMES.keys()).index(st.session_state.lang),
+    )
+    # map back to language code
+    lang_code = [code for code, name in LANGUAGE_NAMES.items() if name == lang_option][0]
+    st.session_state.lang = lang_code
+
+    st.header(t(lang_code, "config_header"))
     
     # Input method
     input_method = st.radio(
-        "Select Input Method:",
-        ["📝 Free Text", "📂 Example Cases"],
-        help="Choose how to input text for analysis"
+        t(lang_code, "select_input_method"),
+        [t(lang_code, "free_text"), t(lang_code, "example_cases")],
+        help=t(lang_code, "input_help")
     )
     
     # Min confidence threshold
     min_confidence = st.slider(
-        "Minimum Confidence Threshold:",
+        t(lang_code, "min_confidence"),
         0.0, 1.0, 0.6,
-        help="Filter arguments by minimum confidence"
+        help=t(lang_code, "min_confidence_help")
     )
     
     st.divider()
-    st.markdown("### 📊 About")
-    st.markdown("""
-    **Argument Structure Analyzer** analyzes text for:
-    - 🟢 Main claims
-    - 🔵 Supporting arguments
-    - 🟣 Counter arguments
-    - 😊 Sentiment & emotionality
-    - 🔴 Logical weaknesses
-    """)
+    st.markdown(f"### {t(lang_code, 'about_header')}")
+    st.markdown(t(lang_code, "about_text"))
 
 # Main content
-st.title("🧠 Argument Structure Analyzer")
-st.markdown("*Analyze argumentative structures in any text*")
+lang_code = st.session_state.lang
+st.title(t(lang_code, "page_title"))
+st.markdown(t(lang_code, "subtitle"))
 
 st.divider()
 
@@ -176,40 +187,40 @@ st.divider()
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    st.subheader("📍 Input Text")
+    st.subheader(t(lang_code, "input_header"))
     
-    if input_method == "📝 Free Text":
+    if input_method == t(lang_code, "free_text"):
         text_input = st.text_area(
-            "Enter or paste your text:",
+            t(lang_code, "text_placeholder"),
             value=st.session_state.text_input,
             height=200,
-            placeholder="Enter your text here... (essay, comment, debate, etc.)",
+            placeholder=t(lang_code, "text_area_placeholder"),
             label_visibility="collapsed"
         )
     else:
         selected_case = st.selectbox(
-            "Select Example Case:",
+            t(lang_code, "example_cases"),
             list_test_cases(),
             format_func=lambda x: x.replace("_", " ").title()
         )
         text_input = get_test_case(selected_case)
-        st.info(f"ℹ️ Loaded example: **{selected_case.replace('_', ' ').title()}**")
+        st.info(t(lang_code, "example_loaded", case=selected_case.replace("_", " ").title()))
 
 with col2:
-    st.subheader("📊 Stats")
+    st.subheader(t(lang_code, "stats_header"))
     if text_input:
         words = len(text_input.split())
         chars = len(text_input)
-        st.metric("Characters", f"{chars:,}")
-        st.metric("Words", f"{words:,}")
-        st.metric("Est. Sentences", f"~{max(1, chars // 50)}")
+        st.metric(t(lang_code, "chars_label"), f"{chars:,}")
+        st.metric(t(lang_code, "words_label"), f"{words:,}")
+        st.metric(t(lang_code, "est_sentences"), f"~{max(1, chars // 50)}")
 
 st.divider()
 
 # Analysis button
-if st.button("🚀 Analyze", use_container_width=True, type="primary"):
+if st.button(t(lang_code, "analyze_button"), use_container_width=True, type="primary"):
     if text_input.strip():
-        with st.spinner("⏳ Analyzing text..."):
+        with st.spinner(t(lang_code, "analyzing_spinner")):
             try:
                 # Initialize components
                 processor = TextPreprocessor()
@@ -232,19 +243,19 @@ if st.button("🚀 Analyze", use_container_width=True, type="primary"):
                     )
                 }
                 
-                st.success("✅ Analysis complete!")
+                st.success(t(lang_code, "analysis_complete"))
                 
             except Exception as e:
-                st.error(f"❌ Error during analysis: {str(e)}")
+                st.error(t(lang_code, "error_analysis", error=str(e)))
     else:
-        st.warning("⚠️ Please enter some text to analyze")
+        st.warning(t(lang_code, "warning_no_text"))
 
 # Results section
 if st.session_state.analysis_results:
     results = st.session_state.analysis_results
     
     st.divider()
-    st.header("📊 Analysis Results")
+    st.header(t(lang_code, "results_header"))
     
     # Overview metrics
     col1, col2, col3, col4 = st.columns(4)
@@ -274,7 +285,7 @@ if st.session_state.analysis_results:
     
     # Tab 1: Arguments
     with tab1:
-        st.subheader("Classified Arguments")
+        st.subheader(t(lang_code, "classified_args_header"))
         
         # Filter by type
         arg_filter = st.multiselect(
@@ -319,12 +330,12 @@ if st.session_state.analysis_results:
     
     # Tab 2: Structure
     with tab2:
-        st.subheader("Argument Tree Structure")
+        st.subheader(t(lang_code, "argument_tree_header"))
         
         tree_ascii = results['builder'].visualize_ascii()
         st.code(tree_ascii, language="text")
         
-        st.subheader("Structure Statistics")
+        st.subheader(t(lang_code, "structure_stats_header"))
         stats = results['builder'].get_tree_stats()
         
         col1, col2 = st.columns(2)
@@ -337,7 +348,7 @@ if st.session_state.analysis_results:
     
     # Tab 3: Emotions
     with tab3:
-        st.subheader("Sentiment & Emotional Analysis")
+        st.subheader(t(lang_code, "sentiment_header"))
         
         emotion_summary = results['emotion_summary']
         
@@ -387,7 +398,7 @@ if st.session_state.analysis_results:
     
     # Tab 4: Weaknesses
     with tab4:
-        st.subheader("Detected Logical Weaknesses & Fallacies")
+        st.subheader(t(lang_code, "weaknesses_header"))
         
         classifier = ArgumentClassifier()
         
@@ -411,7 +422,7 @@ if st.session_state.analysis_results:
     
     # Tab 5: Details
     with tab5:
-        st.subheader("Detailed Breakdown")
+        st.subheader(t(lang_code, "breakdown_header"))
         
         # Per-argument details
         st.markdown("### Full Argument List")
@@ -457,7 +468,7 @@ if st.session_state.analysis_results:
     
     # Tab 6: Visualizations
     with tab6:
-        st.subheader("📊 Comprehensive Visualizations")
+        st.subheader(t(lang_code, "visualizations_header"))
         
         # Prepare data for visualizations
         df_analysis = pd.DataFrame([
