@@ -171,14 +171,18 @@ class TestArgumentClassification(unittest.TestCase):
         classifications = self.classifier.classify_arguments(sentences)
         
         for cls in classifications:
-            weaknesses = self.classifier.detect_logical_weaknesses(cls)
-            self.assertIsInstance(weaknesses, list)
+            feedback = self.classifier.detect_logical_weaknesses(cls)
+            self.assertIsInstance(feedback, list)
+            # each entry should be a dict with at least name/description
+            for entry in feedback:
+                self.assertIsInstance(entry, dict)
+                self.assertIn('name', entry)
+                self.assertIn('description', entry)
             
-            # Should detect Ad-Hominem
+            # ensure Ad Hominem is among names when applicable
             if "stupid" in cls.sentence_text.lower():
-                has_ad_hominem = any("Ad-Hominem" in w for w in weaknesses)
-                # This depends on implementation, so just check format
-                self.assertTrue(all(isinstance(w, str) for w in weaknesses))
+                names = [e['name'] for e in feedback]
+                self.assertIn('Ad Hominem', names)
 
 
 class TestIntegration(unittest.TestCase):

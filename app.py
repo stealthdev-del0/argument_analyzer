@@ -404,21 +404,27 @@ if st.session_state.analysis_results:
         
         weakness_count = 0
         for cls in results['classifications']:
-            weaknesses = classifier.detect_logical_weaknesses(cls)
-            
-            has_weakness = any("⚠️" in w or "🔴" in w for w in weaknesses)
-            if has_weakness:
+            feedback = classifier.detect_logical_weaknesses(cls)
+            # treat "None" entry as no weakness
+            real_feedback = [f for f in feedback if f.get('name') != 'None']
+            if real_feedback:
                 weakness_count += 1
-                
                 with st.container():
                     st.markdown(f"**📍 {cls.sentence_text}**")
-                    for weakness in weaknesses:
-                        if "⚠️" in weakness or "🔴" in weakness:
-                            st.warning(weakness)
+                    for f in real_feedback:
+                        st.markdown(f"- **{f['name']}**: {f['description']}")
+                        if f.get('strengthen'):
+                            st.info(f"💡 Strengthen: {f['strengthen']}")
+                        if f.get('counter_args'):
+                            for ca in f['counter_args']:
+                                st.warning(f"🟠 Counter-argument: {ca}")
+                        if f.get('pro_args'):
+                            for pa in f['pro_args']:
+                                st.success(f"✅ Pro-argument: {pa}")
                     st.divider()
         
         if weakness_count == 0:
-            st.success("✅ No major logical weaknesses detected!")
+            st.success(t(lang_code, "no_weaknesses") if False else "✅ No major logical weaknesses detected!")
     
     # Tab 5: Details
     with tab5:

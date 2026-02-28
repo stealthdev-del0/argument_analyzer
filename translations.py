@@ -40,6 +40,7 @@ LANGUAGES = {
         "warning_no_text": "⚠️ Please enter some text to analyze",
         "results_header": "📊 Analysis Results",
         "error_analysis": "❌ Error during analysis: {error}",
+        "no_weaknesses": "✅ No major logical weaknesses detected!",
     },
     "de": {
         "config_header": "⚙️ Konfiguration",
@@ -74,6 +75,7 @@ LANGUAGES = {
         "warning_no_text": "⚠️ Bitte geben Sie einen Text zur Analyse ein",
         "results_header": "📊 Analyseergebnisse",
         "error_analysis": "❌ Fehler bei der Analyse: {error}",
+        "no_weaknesses": "✅ Keine größeren logischen Schwächen erkannt!",
     },
 }
 

@@ -148,46 +148,117 @@ class ArgumentClassifier:
         
         return sorted(filtered, key=lambda c: c.strength, reverse=True)[:top_n]
     
-    def detect_logical_weaknesses(self, classification: ArgumentClassification) -> List[str]:
+    def detect_logical_weaknesses(self, classification: ArgumentClassification) -> List[Dict]:
         """
         Heuristische Erkennung logischer Schwächen
+
+        Gibt pro Schwäche ein Dictionary mit benanntem Fallacy-Typ,
+        einer kurzen Beschreibung und optionalen Hinweisen zur
+        Verbesserung zurück.
         Args:
             classification: ArgumentClassification-Objekt
         Returns:
-            Liste von erkannten Schwächen
+            Liste von Diktaten. Beispiel:
+            [{
+                "name": "Ad Hominem",
+                "description": "Angriff auf Person statt auf das Argument.",
+                "strengthen": "Konzentriere dich auf die Fakten, nicht auf den Gegner.",
+                "counter_args": ["Andere könnten behaupten, dass der Sprecher unsachlich ist."],
+                "pro_args": ["Stütze deine Aussage mit Quellen anstelle von Persönlichkeitskritik."]
+            }]
         """
-        weaknesses = []
+        feedback = []
         text_lower = classification.sentence_text.lower()
-        
-        # Zu emotional → logisches Argument schwächer
+
+        def add(entry):
+            # vermeide doppelte Einträge gleichen Namens
+            if not any(e['name'] == entry['name'] for e in feedback):
+                feedback.append(entry)
+
+        # Appeal to emotion (hohe Emotionalität)
         if classification.emotionality > 0.7:
-            weaknesses.append("⚠️ Argument basiert stark auf Emotion statt Logik")
-        
-        # Viele Superlative deuten auf Übertreibung hin
+            add({
+                "name": "Appeal to Emotion",
+                "description": "Argument basiert stark auf emotionaler Sprache statt auf Fakten.",
+                "strengthen": "Füge konkrete Belege oder Statistiken hinzu und reduziere den emotionalen Tonfall.",
+                "counter_args": [
+                    "Kritiker könnten argumentieren, dass dein Beitrag eher gefühlsbetont als sachlich ist."
+                ],
+                "pro_args": [
+                    "Unterstütze die emotionale Aussage durch Umfragedaten oder persönliche Erfahrungen als Beispiel."
+                ]
+            })
+
+        # Superlative / Übertreibung
         superlatives = ["absolutely", "definitely", "certainly", "obviously", "clearly"]
         superlative_count = sum(1 for s in superlatives if s in text_lower)
         if superlative_count >= 2:
-            weaknesses.append("⚠️ Übertriebene Sicherheit (Superlative)")
-        
+            add({
+                "name": "Hasty Generalization",
+                "description": "Verwendet übertriebene Ausdrücke und zieht zu schnelle Schlussfolgerungen.",
+                "strengthen": "Verwende genauere Formulierungen oder nenne Ausnahmen."
+            })
+
         # Ad-Hominem Angriffe
         ad_hominem_words = ["stupid", "idiot", "fool", "moron", "ignorant"]
         if any(word in text_lower for word in ad_hominem_words):
-            weaknesses.append("🔴 Ad-Hominem-Angriff erkannt (Angriff auf Person, nicht Argument)")
-        
+            add({
+                "name": "Ad Hominem",
+                "description": "Angriff auf die Person statt auf das Argument.",
+                "strengthen": "Fokussiere dich auf die inhaltliche Kritik und nicht auf den Sprecher.",
+                "counter_args": [
+                    "Andere könnten behaupten, dass du unfair diskutierst, indem du den Gegner angreifst."
+                ],
+                "pro_args": [
+                    "Unterstütze deine Behauptung mit nachprüfbaren Fakten anstelle von Beschimpfungen."
+                ]
+            })
+
         # Verallgemeinerungen
         generalization_words = ["all", "never", "always", "everybody", "nobody"]
         if any(word in text_lower for word in generalization_words):
-            weaknesses.append("⚠️ Mögliche unbegründete Verallgemeinerung")
-        
+            add({
+                "name": "Hasty Generalization",
+                "description": "Zieht eine allgemeine Schlussfolgerung aus unzureichenden Beispielen.",
+                "strengthen": "Gib konkrete Beispiele oder sorge für breitere Datengrundlage.",
+                "counter_args": [
+                    "Einige könnten anmerken, dass deine Beispiele nicht repräsentativ sind."
+                ],
+                "pro_args": [
+                    "Ergänze weitere Belege zur Unterstützung deiner Verallgemeinerung."
+                ]
+            })
+
         # Zirkelschluss-Muster
         if "is" in text_lower and text_lower.count("is") > 2:
-            weaknesses.append("⚠️ Möglicher Zirkelschluss (zu viele 'ist' Aussagen)")
-        
-        # Fehlendes Belege
+            add({
+                "name": "Circular Reasoning",
+                "description": "Das Argument benutzt seine eigene Schlussfolgerung als Prämisse.",
+                "strengthen": "Führe unabhängige Beweise oder Argumente an, die deine Aussage stützen."
+            })
+
+        # Fehlendes Belege bei Support
         if classification.argument_type == "SUPPORT" and "believe" in text_lower:
-            weaknesses.append("⚠️ Glaubenssaussage statt Beweis")
-        
-        return weaknesses if weaknesses else ["✅ Keine offensichtlichen Schwächen erkannt"]
+            add({
+                "name": "Appeal to Belief",
+                "description": "Stützt sich mehr auf Glauben als auf überprüfbare Fakten.",
+                "strengthen": "Liefern Sie empirische Daten oder Quellen anstelle einer bloßen Behauptung.",
+                "counter_args": [
+                    "Ein Gegner könnte sagen, dass dein Glaube keine Beweise liefert."
+                ],
+                "pro_args": [
+                    "Füge Studien oder Expertenzitate hinzu, um die Glaubensaussage zu untermauern."
+                ]
+            })
+
+        if not feedback:
+            feedback.append({
+                "name": "None",
+                "description": "✅ Keine offensichtlichen Schwächen erkannt",
+                "strengthen": "Dein Argument erscheint logisch solide – weiter so!"
+            })
+
+        return feedback
 
 
 if __name__ == "__main__":
