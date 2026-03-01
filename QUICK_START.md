@@ -8,7 +8,7 @@ Die einfachste Weise, die App auf deinem Laptop zu starten.
 
 ### macOS/Linux
 ```bash
-cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+cd /path/to/argument_analyzer
 ./start.sh
 ```
 

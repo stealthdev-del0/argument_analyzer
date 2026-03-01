@@ -12,7 +12,7 @@ Alle Schritte zum Starten der App auf deinem Laptop.
 # 1. Terminal öffnen (Cmd+Space → Terminal)
 
 # 2. Kopiere & paste diese 2 Zeilen:
-cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+cd /path/to/argument_analyzer
 ./start.sh
 
 # 3. Warte bis "Local URL: http://localhost:8501" erscheint
@@ -101,7 +101,7 @@ python --version
 
 **Lösung:**
 ```bash
-cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+cd /path/to/argument_analyzer
 ls -la start.sh  # Überprüfe ob Datei existiert
 ./start.sh
 ```

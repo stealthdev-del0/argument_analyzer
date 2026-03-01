@@ -33,7 +33,7 @@
 
 ### Option A: 🖥️ **Local Python** (Schnellstart)
 ```bash
-cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+cd /path/to/argument_analyzer
 
 # Setup
 python3 -m venv .venv
@@ -52,7 +52,7 @@ streamlit run app.py
 
 ### Option B: 🐳 **Docker** (Empfohlen für Deployment)
 ```bash
-cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+cd /path/to/argument_analyzer
 
 # Mit docker-compose (Einfachste Methode)
 docker-compose up
@@ -179,7 +179,7 @@ argument_analyzer/
 
 ### Schritt 1: Git Repository initialisieren
 ```bash
-cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+cd /path/to/argument_analyzer
 
 git init
 git add .

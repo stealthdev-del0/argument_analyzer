@@ -67,7 +67,7 @@ A completely new "Visualizations" tab with 5 advanced charts:
 
 ### Running the App
 ```bash
-cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+cd /path/to/argument_analyzer
 ./start.sh
 ```
 

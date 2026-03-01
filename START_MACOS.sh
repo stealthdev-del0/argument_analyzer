@@ -15,7 +15,7 @@ cat << 'EOF'
 ✅ SCHRITT 2: Zum Projekt navigieren
    Kopiere diesen Befehl:
    
-   cd /Users/Salomo/Desktop/Programmier_Projekt/argument_analyzer
+   cd /path/to/argument_analyzer
    
    Cmd+V zum Einfügen, dann Enter
 
